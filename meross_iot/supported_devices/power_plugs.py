@@ -13,7 +13,6 @@ import paho.mqtt.client as mqtt
 from paho.mqtt import MQTTException
 from meross_iot.supported_devices.abilities import *
 from meross_iot.supported_devices.exceptions.CommandTimeoutException import CommandTimeoutException
-
 from meross_iot.utilities.synchronization import AtomicCounter
 
 l = logging.getLogger("meross_powerplug")

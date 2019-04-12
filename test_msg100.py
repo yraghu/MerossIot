@@ -1,15 +1,25 @@
 from meross_iot.api import MerossHttpClient
-from logging import DEBUG
-from meross_iot.supported_devices.power_plugs import set_debug_level
+from logging import DEBUG, ERROR, FileHandler
+from os import path
+from meross_iot.supported_devices.power_plugs import set_debug_level, l, h
 import getpass
+
+
+LOGFILE = path.abspath('./msg100.log')
+
+h.setLevel(ERROR)
+f = FileHandler(LOGFILE)
+f.setLevel(DEBUG)
+l.addHandler(f)
 
 
 if __name__=='__main__':
     set_debug_level(DEBUG)
+
     print("-----------------------------------------")
     print("Welcome to the MSG100 test script. Thank you for helping me in testing this device!")
     print("-----------------------------------------")
-
+    print("All low-level lows will be saved to %s" % LOGFILE)
     print("Please enter your meross cloud email and password. That would allow me to perform some tests.")
     EMAIL = input("Your meross EMAIL: ")
     PASSWORD = getpass.getpass("Your meross PASSWORD: ")
