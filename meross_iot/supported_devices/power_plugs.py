@@ -356,8 +356,10 @@ class GenericPlug:
 
     def _handle_namespace_payload(self, namespace, payload):
         with self._status_lock:
+
             if namespace == TOGGLE:
                 self._state[0] = payload['toggle']['onoff'] == 1
+
             elif namespace == TOGGLEX:
                 if isinstance(payload['togglex'], list):
                     for c in payload['togglex']:
@@ -366,8 +368,13 @@ class GenericPlug:
                 elif isinstance(payload['togglex'], dict):
                     channel_index = payload['togglex']['channel']
                     self._state[channel_index] = payload['togglex']['onoff'] == 1
+
+            elif namespace == GARAGE_DOOR_STATE:
+                self._garage_state = payload['garageDoor']
+
             elif namespace == ONLINE:
                 l.info("Online keep alive received: %s" % payload)
+
             else:
                 l.error("Unknown/Unsupported namespace/command: %s" % namespace)
 
@@ -377,12 +384,18 @@ class GenericPlug:
         if 'digest' in data:
             for c in data['digest']['togglex']:
                 res[c['channel']] = c['onoff'] == 1
+
+            # Handle garage door state, if any
+            if 'garageDoor' in data['digest']:
+                # The following item is an object {channel: int, open: int}
+                self._garage_state = data['digest']['garageDoor']
+
         elif 'control' in data:
             res[0] = data['control']['toggle']['onoff'] == 1
         return res
 
     def _get_channel_id(self, channel):
-        # Otherwise, if the passed channel looks like the channel spec, lookup its array indexindex
+        # Otherwise, if the passed channel looks like the channel spec, lookup its array index
         if channel in self._channels:
             return self._channels.index(channel)
 
@@ -422,10 +435,14 @@ class GenericPlug:
     def supports_electricity_reading(self):
         return ELECTRICITY in self.get_abilities()
 
+    def supports_garage_state(self):
+        return GARAGE_DOOR_STATE in self.get_abilities()
+
     def get_power_consumption(self):
         if CONSUMPTIONX in self.get_abilities():
             return self._get_consumptionx()
         else:
+            l.error("This device does not support GET_CONSUMPTION method")
             # Not supported!
             return None
 
@@ -433,6 +450,18 @@ class GenericPlug:
         if ELECTRICITY in self.get_abilities():
             return self._get_electricity()
         else:
+            l.error("This device does not support GET_ELECTRICITY method")
+            # Not supported!
+            return None
+
+    def get_garage_door_open_state(self, channel=0):
+        if GARAGE_DOOR_STATE is self.get_abilities():
+            for c in self._garage_state:
+                if c['channel'] == channel:
+                    return c['open'] == 1
+            return self._garage_state
+        else:
+            l.error("This device does not support GARAGE_STATE method")
             # Not supported!
             return None
 
