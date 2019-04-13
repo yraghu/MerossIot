@@ -556,3 +556,14 @@ class GenericPlug:
             return
         else:
             return self.get_channel_status(c)
+
+    # TODO: remove the following once we get the right way of opening the garage door
+    def test_operate_garage_door_1(self, status, channel=0):
+        uuid = "%s%d" % (self._uuid, channel)
+        payload = {'state': {"channel": channel, "open": status, "uuid": uuid}}
+        return self._execute_cmd("SET", GARAGE_DOOR_STATE, payload)
+
+    def test_operate_garage_door_2(self, status, channel=0):
+        payload = {'state': {"channel": channel, "open": status, "uuid": self._uuid}}
+        return self._execute_cmd("SET", GARAGE_DOOR_STATE, payload)
+

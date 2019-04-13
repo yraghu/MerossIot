@@ -48,17 +48,36 @@ if __name__=='__main__':
     while cmd != 'q':
         str_state = "OPEN" if msg100.get_garage_door_open_state() == 1 else "CLOSED"
         print("Reported garage state is: %s. Go check if that is true!" % str_state)
-
-        command = input("Your command (O for opening, C for closing, Q for quitting): ")
+        print("Commands:")
+        print("OPEN with TOGGLEX: O")
+        print("CLOSE with TOGGLEX: C")
+        print("OPEN with GARAGE_DOOR_STATE with UUID+CHANNEL: O1")
+        print("CLOSE with GARAGE_DOOR_STATE with UUID+CHANNEL: C1")
+        print("OPEN with GARAGE_DOOR_STATE with UUID: O2")
+        print("CLOSE with GARAGE_DOOR_STATE with UUID: C2")
+        print("QUIT: Q")
+        command = input("Your command: ")
         cmd = command.strip().lower()
         if cmd == 'o':
-            print("Opening...")
-            msg100.turn_on_channel(0)
+            print("O: Opening...")
+            msg100.turn_on_channel(channel=0)
         elif cmd == 'c':
-            print("Closing")
-            msg100.turn_on_channel(0)
+            print("C: Closing...")
+            msg100.turn_off_channel(channel=0)
+        elif cmd == 'o1':
+            print("O1: Opening...")
+            msg100.test_operate_garage_door_1(status=1, channel=0)
+        elif cmd == 'c1':
+            print("C1: Closing...")
+            msg100.test_operate_garage_door_1(status=0, channel=0)
+        elif cmd == 'o2':
+            print("O2: Opening...")
+            msg100.test_operate_garage_door_2(status=1, channel=0)
+        elif cmd == 'c2':
+            print("C2: Closing...")
+            msg100.test_operate_garage_door_2(status=0, channel=0)
         elif cmd == 'q':
-            print("Quitting")
+            print("Quitting!")
             exit(0)
         else:
             print("Invalid command provided.")
