@@ -454,15 +454,14 @@ class GenericPlug:
             return None
 
     def get_garage_door_open_state(self, channel=0):
-        if GARAGE_DOOR_STATE is self.get_abilities():
-            for c in self._garage_state:
-                if c['channel'] == channel:
-                    return c['open'] == 1
-            return self._garage_state
-        else:
-            l.error("This device does not support GARAGE_STATE method")
-            # Not supported!
-            return None
+        # TODO: check the output of self.supports_garage_state() before proceeding
+        # Temporary ignore this...
+        l.debug("Abilities: %s" % self._abilities)
+        l.debug("Garage state: %s" % self._garage_state)
+        for c in self._garage_state:
+            if c['channel'] == channel:
+                return c['open'] == 1
+        return None
 
     def device_id(self):
         return self._uuid
@@ -486,6 +485,9 @@ class GenericPlug:
         # TODO: Make this cached value expire after a bit...
         if self._abilities is None:
             self._abilities = self._execute_cmd("GET", "Appliance.System.Ability", {})['ability']
+            l.debug("RETURNED abilities: %s" % self._abilities)
+
+        l.debug("CACHED abilities: %s" % self._abilities)
         return self._abilities
 
     def get_report(self):
